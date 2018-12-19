@@ -34,6 +34,9 @@ function run(input) {
 
   let counter = 0;
 
+  regs = [16473048, 1, 10551432, 10551432, 1, 6, 0, 0, 0, 0];
+  idx = 5;
+
   while (idx >= 0 && idx < input.length) {
     counter++;
 
@@ -80,28 +83,16 @@ function run(input) {
     }
 
     idx = regs[ipBound];
-    idx++;
 
-    if (counter % 10000000 === 0) {
-      console.log(idx, regs);
+    if (idx === 6) {
+      console.log(idx, regs, cmd);
     }
+
+    idx++;
   }
 
   return regs;
 }
-
-const testInput = [
-  "#ip 0",
-  "seti 5 0 1",
-  "seti 6 0 2",
-  "addi 0 1 0",
-  "addr 1 2 3",
-  "setr 1 0 0",
-  "seti 8 0 4",
-  "seti 9 0 5"
-].map(parse);
-
-run(testInput);
 
 const file = require("fs")
   .readFileSync("./19.txt")
