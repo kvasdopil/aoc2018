@@ -159,7 +159,7 @@ function fight(input, me, hps) {
   return enemies.shift();
 }
 
-function game(input) {
+function game(input, elfAttack = 3) {
   let hps = [];
   findAllPoints(input, "G").forEach(({ x, y }) => hps.push({ x, y, hp: 200 }));
   findAllPoints(input, "E").forEach(({ x, y }) => hps.push({ x, y, hp: 200 }));
@@ -209,8 +209,13 @@ function game(input) {
       const attack = fight(input, char, hps);
       if (attack) {
         const hp = hps.filter(i => i.x === attack.x && i.y === attack.y).pop();
-        // console.log("char", char, "attack", hp);
-        hp.hp -= 3;
+        // console.log("char", input[attack.y][attack.x], "attack", hp);
+
+        if (input[attack.y][attack.x] === "G") {
+          hp.hp -= elfAttack;
+        } else {
+          hp.hp -= 3;
+        }
         if (hp.hp < 0) {
           input[hp.y][hp.x] = ".";
           hps = hps.filter(i => i !== hp);
@@ -418,9 +423,31 @@ testInput = [
 ].map(i => Array.from(i));
 assert(game(testInput), 18740);
 
+testInput = [
+  "#######",
+  "#.G...#",
+  "#...EG#",
+  "#.#.#G#",
+  "#..G#E#",
+  "#.....#",
+  "#######"
+].map(i => Array.from(i));
+assert(game(testInput, 15), 4988);
+assert(findAllPoints(testInput, "E").length, 2);
+
 const file = require("fs")
   .readFileSync("15.txt")
   .toString()
   .split("\n")
   .map(i => Array.from(i));
-console.log(game(file));
+
+const numElfs = findAllPoints(file, "E").length;
+
+for (let n = 3; n < 200; n++) {
+  const field = file.map(l => l.map(a => a));
+  console.log(game(field, n));
+  console.log(n);
+  if (findAllPoints(field, "E").length === numElfs) {
+    break;
+  }
+}
