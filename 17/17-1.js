@@ -16,14 +16,10 @@ function parse(line) {
 }
 
 function buildMap(input) {
-  const xmin =
-    testInput.reduce((res, item) => Math.min(res, item.xa), 9999) - 1;
-  const xmax =
-    testInput.reduce((res, item) => Math.max(res, item.xb), -9999) + 2;
-  const ymin =
-    testInput.reduce((res, item) => Math.min(res, item.ya), 9999) - 1;
-  const ymax =
-    testInput.reduce((res, item) => Math.max(res, item.yb), -9999) + 2;
+  const xmin = input.reduce((res, item) => Math.min(res, item.xa), 9999) - 1;
+  const xmax = input.reduce((res, item) => Math.max(res, item.xb), -9999) + 2;
+  const ymin = input.reduce((res, item) => Math.min(res, item.ya), 9999) - 1;
+  const ymax = input.reduce((res, item) => Math.max(res, item.yb), -9999) + 2;
 
   const result = Array(ymax - ymin)
     .fill(0)
@@ -53,58 +49,50 @@ function print(field) {
   console.log(field.map(line => line.map(m).join("")).join("\n"));
 }
 
-function process(field) {
-  let mod = false;
-
-  for (let y = 0; y < field.length; y++) {
-    for (let x = 0; x < field[y].length; x++) {
-      const val = field[y][x];
-      if (val === 10) {
-        continue;
-      }
-      if (val === 0) {
-        continue;
-      }
-
-      if (val > 1) {
-        const bottom = field[y + 1][x];
-        const left = field[y][x - 1];
-        const right = field[y][x + 1];
-
-        if (bottom < 9) {
-          if (y < field.length - 2) {
-            field[y + 1][x]++;
-          }
-          field[y][x]--;
-          mod = true;
-        } else {
-          if (left < val - 1) {
-            field[y][x - 1] = val;
-            field[y][x]--;
-            mod = true;
-          }
-
-          if (right < val - 1) {
-            field[y][x + 1] = val;
-            field[y][x]--;
-            mod = true;
-          }
-        }
-      }
-    }
-  }
-
-  return mod;
-}
-
 function solve(field) {
   const startx = field[0].reduce((res, val, i) => (val === "+" ? i : res), 0);
   const starty = 1;
-  field[starty][startx] = 0;
 
-  while (field[starty][startx] < 8) {
-    field[starty][startx]++;
-    while (process(field)) {
+  for (let i = 0; i < 200; i++) {
+    let x = startx;
+    let y = starty;
+    let last = 0;
+    while (true) {
+      const xo = x;
+      const yo = y;
+      if (field[y][x] === 0) {
+        field[y][x] = 1;
+      }
+
+      while (field[y + 1][x] < 9) {
+        last = 0;
+        y++;
+        if (field[y][x] === 0) {
+          field[y][x] = 1;
+        }
+      }
+
+      // if (field[y][x] === 1) {
+      //   field[y][x] = 0;
+      // }
+
+      if (last === 0) {
+        if (field[y][x - 1] < 9) {
+          last = -1;
+        } else {
+          last = 1;
+        }
+      }
+
+      if (field[y][x + last] < 9) {
+        x += last;
+      }
+
+      if (xo === x && yo === y) {
+        field[y][x] = 9;
+        break;
+      }
+
       print(field);
     }
   }
@@ -123,3 +111,12 @@ const testInput = [
 
 const field = buildMap(testInput);
 solve(field);
+
+// const file = require("fs")
+//   .readFileSync("17.txt")
+//   .toString()
+//   .split("\n")
+//   .map(parse);
+
+// const fileField = buildMap(file);
+// solve(fileField);
