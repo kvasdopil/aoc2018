@@ -18,7 +18,7 @@ function parse(line) {
 function buildMap(input) {
   const xmin = input.reduce((res, item) => Math.min(res, item.xa), 9999) - 1;
   const xmax = input.reduce((res, item) => Math.max(res, item.xb), -9999) + 2;
-  const ymin = input.reduce((res, item) => Math.min(res, item.ya), 9999) - 1;
+  const ymin = 1; // input.reduce((res, item) => Math.min(res, item.ya), 9999) - 1;
   const ymax = input.reduce((res, item) => Math.max(res, item.yb), -9999) + 2;
 
   const result = Array(ymax - ymin)
@@ -49,53 +49,100 @@ function print(field) {
   console.log(field.map(line => line.map(m).join("")).join("\n"));
 }
 
-function solve(field) {
-  const startx = field[0].reduce((res, val, i) => (val === "+" ? i : res), 0);
-  const starty = 1;
+function walk(field, startx, starty) {
+  const points = [{ x: startx, y: starty }];
+  console.log("");
 
-  for (let i = 0; i < 200; i++) {
-    let x = startx;
-    let y = starty;
-    let last = 0;
-    while (true) {
-      const xo = x;
-      const yo = y;
-      if (field[y][x] === 0) {
-        field[y][x] = 1;
-      }
-
-      while (field[y + 1][x] < 9) {
-        last = 0;
-        y++;
-        if (field[y][x] === 0) {
-          field[y][x] = 1;
-        }
-      }
-
-      // if (field[y][x] === 1) {
-      //   field[y][x] = 0;
-      // }
-
-      if (last === 0) {
-        if (field[y][x - 1] < 9) {
-          last = -1;
-        } else {
-          last = 1;
-        }
-      }
-
-      if (field[y][x + last] < 9) {
-        x += last;
-      }
-
-      if (xo === x && yo === y) {
-        field[y][x] = 9;
+  while (points.length) {
+    let { x, y } = points.shift();
+    // print(field);
+    while (field[y + 1][x] === 0) {
+      field[y][x] = "|";
+      y++;
+      field[y][x] = "|";
+      if (y >= field.length - 1) {
         break;
       }
+    }
+    if (y >= field.length - 1) {
+      continue;
+    }
 
-      print(field);
+    // if (field[y + 1][x] === "~") {
+    //   continue;
+    // }
+
+    if (field[y + 1][x] === ">") {
+      continue;
+    }
+
+    if (field[y + 1][x] === "<") {
+      continue;
+    }
+
+    while (true) {
+      // print(field);
+      field[y][x] = "x";
+      let splitx = x;
+
+      x = splitx;
+      while (field[y][x - 1] === 0 && field[y + 1][x] !== 0) {
+        x--;
+        field[y][x] = "<";
+      }
+
+      while (field[y][x] !== "x" && field[y + 1][x] !== 0) {
+        field[y][x] = "~";
+        x++;
+      }
+
+      if (x != splitx) {
+        points.push({ x, y });
+      }
+
+      x = splitx;
+      while (field[y][x + 1] === 0 && field[y + 1][x] !== 0) {
+        x++;
+        field[y][x] = ">";
+      }
+
+      while (field[y][x] !== "x" && field[y + 1][x] !== 0) {
+        field[y][x] = "~";
+        x--;
+      }
+
+      if (x != splitx) {
+        points.push({ x, y });
+      }
+
+      x = splitx;
+      if (field[y][x - 1] != "<" && field[y][x + 1] != ">") {
+        field[y][x] = "~";
+        y--;
+        continue;
+      }
+
+      break;
     }
   }
+  print(field);
+}
+
+function solve(field) {
+  const startx = field[0].reduce((res, val, i) => (val === "+" ? i : res), 0);
+  const starty = 0;
+
+  walk(field, startx, starty);
+  let ct = 0;
+  for (let y = 1; y < field.length; y++) {
+    for (let x = 0; x < field[y].length; x++) {
+      if (field[y][x] != 10 && field[y][x] != 0) {
+        ct++;
+      }
+    }
+  }
+
+  return ct;
 }
 
 const testInput = [
@@ -110,13 +157,30 @@ const testInput = [
 ].map(parse);
 
 const field = buildMap(testInput);
-solve(field);
+console.log(solve(field));
 
-// const file = require("fs")
-//   .readFileSync("17.txt")
-//   .toString()
-//   .split("\n")
-//   .map(parse);
+// ==========
 
-// const fileField = buildMap(file);
-// solve(fileField);
+const testInput2 = [
+  "x=490, y=2..10",
+  "x=510, y=2..10",
+  "y=10, x=490..510",
+  "x=495, y=5..7"
+].map(parse);
+
+const field2 = buildMap(testInput2);
+console.log(solve(field2));
+
+// ==========
+
+const file = require("fs")
+  .readFileSync("17.txt")
+  .toString()
+  .split("\n")
+  .map(parse);
+
+const fieldBig = buildMap(file);
+// console.log(solve(fieldBig));
+
+// 229406 hi
+// 229410;
