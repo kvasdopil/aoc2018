@@ -4,37 +4,42 @@ function main(r0) {
 
   let ct = 0;
 
-  while (ct < 10000) {
-    ct++;
-    // if (ct % 1000 === 0) {
-    //   console.log(r0, ct);
-    // }
+  //   while (ct < 1) {
+  //     ct++;
 
-    r5 = r2 | 65536;
-    r2 = 2238642;
+  // r5 = r2 | 0x10000;
+  //   r5 = 0x10000;
 
-    while (true) {
-      r2 = (r2 + r5) & 255;
-      r2 = r2 & 16777215;
-      r2 = r2 * 65899;
-      r2 = r2 & 16777215;
-      if (256 > r5) {
-        break;
-      }
-      r3 = 0;
-      while ((r3 + 1) * 256 <= r5) {
-        r3++;
-      }
-      r5 = r3;
-    }
+  //   while (r5 >= 256) {
+  //     //   r3 = 0;
+  //     //   while ((r3 + 1) * 256 <= r5) {
+  //     //     r3++;
+  //     //   }
 
-    if (r2 === r0) {
-      return [r0, r2, r3];
-    }
+  //     r5 = Math.floor(r5 / 256);
+  //     //r5 = r3;
+  //   }
+
+  //   console.log(r5);
+  // r5 = 1;
+
+  r2 = 0xb3 * 0x1016b;
+  r2 = r2 & 0xffffff;
+
+  if (r2 === r0) {
+    return true;
+  }
+  //   }
+
+  return false;
+}
+
+for (let i = 0; i <= 0xffffff; i++) {
+  if (main(i)) {
+    console.log(i);
   }
 }
 
-for (let i = 0; i < 1000; i++) {
-  console.log(i);
-  main(i);
-}
+// 27029 small
+// 11795921 small
+// 16777215 hi

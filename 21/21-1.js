@@ -25,12 +25,12 @@ function parse(line) {
   };
 }
 
-function run(input) {
+function run(input, i) {
   let ipBound = -1;
   let idx = 0;
 
   let regs = Array(10).fill(0);
-  regs[0] = 1;
+  regs[0] = i;
 
   while (input[0].instr === 8) {
     const cmd = input.shift();
@@ -121,4 +121,4 @@ const file = require("fs")
   .split("\n")
   .map(parse);
 
-console.log(run(file));
+console.log(run(file, 11795922));
