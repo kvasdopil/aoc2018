@@ -14,76 +14,85 @@ function run(input) {
     ipBound = cmd.a;
   }
 
-  console.log(`let r1=0, r2=0, r3=0, r4=0, r5=0, r6=0;`);
+  console.log(`let r0=0, r1=0, r2=0, r3=0, r4=0, r5=0, r6=0;`);
 
   let line = 0;
-  console.log(`while (r${ipBound} < ${input.length})`);
+  console.log(`while (r${ipBound} >= 0 && r${ipBound} < ${input.length}) {`);
   console.log(`switch (r${ipBound}) {`);
   for (const cmd of input) {
     console.log(`case ${line}: `);
+    if (cmd.out === ipBound) {
+      console.log(`r${ipBound} = ${line};`);
+    }
+    let out = `r${cmd.out} = `;
     line++;
     switch (cmd.instr) {
       case "seti":
-        console.log(`r${cmd.out} = ${cmd.a};`);
+        console.log(`${out} ${cmd.a};`);
         break;
 
       case "setr":
-        console.log(`r${cmd.out} = r${cmd.a};`);
+        console.log(`${out} r${cmd.a};`);
         break;
 
       case "addi":
-        console.log(`r${cmd.out} = r${cmd.a} + ${cmd.b};`);
+        console.log(`${out} r${cmd.a} + ${cmd.b};`);
         break;
 
       case "addr":
-        console.log(`r${cmd.out} = r${cmd.a} + r${cmd.b};`);
+        console.log(`${out} r${cmd.a} + r${cmd.b};`);
         break;
 
       case "muli":
-        console.log(`r${cmd.out} = r${cmd.a} * ${cmd.b};`);
+        console.log(`${out} r${cmd.a} * ${cmd.b};`);
         break;
 
       case "mulr":
-        console.log(`r${cmd.out} = r${cmd.a} * r${cmd.b};`);
+        console.log(`${out} r${cmd.a} * r${cmd.b};`);
         break;
 
       case "eqrr":
-        console.log(`r${cmd.out} = r${cmd.a} === r${cmd.b} ? 1 : 0;`);
+        console.log(`${out} r${cmd.a} === r${cmd.b} ? 1 : 0;`);
         break;
 
       case "eqri":
-        console.log(`r${cmd.out} = r${cmd.a} === ${cmd.b} ? 1 : 0;`);
+        console.log(`${out} r${cmd.a} === ${cmd.b} ? 1 : 0;`);
         break;
 
       case "gtrr":
-        console.log(`r${cmd.out} = r${cmd.a} > r${cmd.b} ? 1 : 0;`);
+        console.log(`${out} r${cmd.a} > r${cmd.b} ? 1 : 0;`);
         break;
 
       case "gtir":
-        console.log(`r${cmd.out} = ${cmd.a} > r${cmd.b} ? 1 : 0;`);
+        console.log(`${out} ${cmd.a} > r${cmd.b} ? 1 : 0;`);
         break;
 
       case "bani":
-        console.log(`r${cmd.out} = r${cmd.a} & ${cmd.b};`);
+        console.log(`${out} r${cmd.a} & ${cmd.b};`);
         break;
 
       case "bori":
-        console.log(`r${cmd.out} = r${cmd.a} | ${cmd.b};`);
+        console.log(`${out} r${cmd.a} | ${cmd.b};`);
         break;
 
       default:
         console.log("unknown opcode", cmd.instr);
         return;
     }
-    console.log("break;");
+    if (cmd.out === ipBound) {
+      console.log(`r${ipBound}++;`);
+      console.log("break;");
+    }
   }
   console.log("}");
+  console.log("}");
+  console.log("console.log(r0,r1,r2,r3,r4,r5,r6)");
 }
 
 const file = require("fs")
-  .readFileSync("./21.txt")
+  .readFileSync("21.txt")
   .toString()
   .split("\n")
   .map(parse);
 
-console.log(run(file));
+run(file);
