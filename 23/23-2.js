@@ -28,34 +28,43 @@ function solve(input) {
   // noSkip.sort((a, b) => a.r - b.r);
   // console.log(noSkip);
 
-  const minRadius = input.reduce(
-    (res, i) => (res < i.r ? res : i.r),
-    99999999999999
-  );
-  const minX = input.reduce(
-    (res, i) => (res < i.x ? res : i.x),
-    99999999999999
-  );
-  const minY = input.reduce(
-    (res, i) => (res < i.y ? res : i.y),
-    99999999999999
-  );
-  const minZ = input.reduce(
-    (res, i) => (res < i.z ? res : i.z),
-    99999999999999
-  );
-  const maxX = input.reduce(
-    (res, i) => (res > i.x ? res : i.x),
-    -99999999999999
-  );
-  const maxY = input.reduce(
-    (res, i) => (res > i.y ? res : i.y),
-    -99999999999999
-  );
-  const maxZ = input.reduce(
-    (res, i) => (res > i.z ? res : i.z),
-    -99999999999999
-  );
+  // for (let i = 0; i < noSkip.length; i++) {
+  //   for (let j = i + 1; j < noSkip.length; j++) {
+  //     const a = noSkip[i];
+  //     const b = noSkip[j];
+  //     const dst = dist(a, b);
+  //     if (dst > a.r + b.r) {
+  //       console.log(i, j);
+  //     }
+  //   }
+  // }
+
+  for (let i = 0; i < input.length; i++) {
+    let links = 0;
+    for (let j = 0; j < input.length; j++) {
+      const a = input[i];
+      const b = input[j];
+      const dst = dist(a, b);
+      if (dst <= a.r + b.r) {
+        if (i != j) {
+          links++;
+        }
+      }
+    }
+    input[i].links = links;
+  }
+
+  input.sort((a, b) => b.links - a.links);
+  const bad = input.filter(a => a.links < 900);
+
+  console.log(bad);
+
+  const minX = bad.reduce((res, i) => (res < i.x ? res : i.x), 99999999999999);
+  const minY = bad.reduce((res, i) => (res < i.y ? res : i.y), 99999999999999);
+  const minZ = bad.reduce((res, i) => (res < i.z ? res : i.z), 99999999999999);
+  const maxX = bad.reduce((res, i) => (res > i.x ? res : i.x), -99999999999999);
+  const maxY = bad.reduce((res, i) => (res > i.y ? res : i.y), -99999999999999);
+  const maxZ = bad.reduce((res, i) => (res > i.z ? res : i.z), -99999999999999);
 
   const range = {
     x: Math.ceil(maxX - minX / 2),
@@ -67,10 +76,11 @@ function solve(input) {
     y: range.y + minY,
     z: range.z + minZ
   };
-  const pieces = 13;
+  const pieces = 100;
 
   let gmax = 0;
   let next;
+  let mindist = 0;
 
   while (range.x + range.y + range.z > 12) {
     console.log(".", range.x, range.y, range.z);
@@ -79,26 +89,31 @@ function solve(input) {
     const zd = Math.ceil(range.z / pieces);
 
     // let next;
-    // let min = 0;
+    // gmax = 0;
 
     for (let x = center.x - range.x; x <= center.x + range.x; x += xd) {
       for (let y = center.y - range.y; y <= center.y + range.y; y += yd) {
         for (let z = center.z - range.z; z <= center.z + range.z; z += zd) {
-          const inrange = input.filter(
+          const inrange = bad.filter(
             drone => dist(drone, { x, y, z }) <= drone.r
           ).length;
-          if (inrange >= gmax) {
-            if (inrange > gmax) {
-              console.log(inrange);
-            }
-            gmax = inrange;
+          if (inrange > gmax) {
             next = { x, y, z };
+            mindist = Math.abs(x + y + z);
+            gmax = inrange;
+            console.log(inrange, mindist);
+          }
+          if (inrange === gmax) {
+            if (Math.abs(x + y + z) < mindist) {
+              mindist = Math.abs(x + y + z);
+              next = { x, y, z };
+            }
           }
         }
       }
     }
 
-    const mul = 0.8;
+    const mul = 0.5;
     range.x = Math.ceil(range.x * mul);
     range.y = Math.ceil(range.y * mul);
     range.z = Math.ceil(range.z * mul);
@@ -133,3 +148,5 @@ console.log(solve(file));
 
 // 111562242 low - 904
 // 111956876 low - 905
+// 112690922 low - 905
+// 262643100 - 13
