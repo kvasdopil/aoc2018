@@ -52,7 +52,13 @@ function calcDamage(from, to) {
   return weak ? dmg * 2 : dmg;
 }
 
-function solve(input) {
+function solve(input, boost) {
+  input.forEach(i => {
+    if (i.side[0] === "i") {
+      i.attack += boost;
+    }
+  });
+
   input.sort((a, b) => b.init - a.init);
 
   while (true) {
@@ -113,13 +119,14 @@ function solve(input) {
       target.units -= kill;
     });
 
-    input
-      .filter(i => i.units > 0)
-      .forEach(group => console.log(group.side, group.init, group.units));
+    // input
+    //   .filter(i => i.units > 0)
+    //   .forEach(group => console.log(group.side, group.init, group.units));
   }
 
   const result = input
     .filter(i => i.units > 0)
+    .filter(i => i.side[0] === "i")
     .reduce((res, a) => res + a.units, 0);
 
   return result;
@@ -131,7 +138,7 @@ const testInput = [
   "b1 801 units each with 4706 hit points (weak to radiation) with an attack that does 116 bludgeoning damage at initiative 1",
   "b2 4485 units each with 2961 hit points (immune to radiation; weak to fire, cold) with an attack that does 12 slashing damage at initiative 4"
 ].map(parse);
-console.log(solve(testInput));
+console.log(solve(testInput, 1570));
 
 const realInput = [
   "i1 197 units each with 6697 hit points (weak to bludgeoning, fire) with an attack that does 312 slashing damage at initiative 3",
@@ -155,6 +162,9 @@ const realInput = [
   "b8 3434 units each with 49977 hit points () with an attack that does 28 radiation damage at initiative 4",
   "b9 1918 units each with 14567 hit points (weak to slashing) with an attack that does 13 bludgeoning damage at initiative 20",
   "b10 519 units each with 18413 hit points (immune to slashing) with an attack that does 69 fire damage at initiative 17"
-].map(parse);
+];
 
-console.log(solve(realInput));
+for (let b = 1000; b > 1; b--) {
+  const input = realInput.map(parse);
+  console.log(b, solve(input, b));
+}
