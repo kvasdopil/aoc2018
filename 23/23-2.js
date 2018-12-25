@@ -56,27 +56,109 @@ function solve(input) {
 
   input.sort((a, b) => b.links - a.links);
   const bad = input.filter(a => a.links < 900);
+  const good = input.filter(a => a.links > 900);
 
-  console.log(bad);
+  // console.log(bad);
 
-  const minX = bad.reduce((res, i) => (res < i.x ? res : i.x), 99999999999999);
-  const minY = bad.reduce((res, i) => (res < i.y ? res : i.y), 99999999999999);
-  const minZ = bad.reduce((res, i) => (res < i.z ? res : i.z), 99999999999999);
-  const maxX = bad.reduce((res, i) => (res > i.x ? res : i.x), -99999999999999);
-  const maxY = bad.reduce((res, i) => (res > i.y ? res : i.y), -99999999999999);
-  const maxZ = bad.reduce((res, i) => (res > i.z ? res : i.z), -99999999999999);
+  // const minX = bad.reduce((res, i) => (res < i.x ? res : i.x), 99999999999999);
+  // const minY = bad.reduce((res, i) => (res < i.y ? res : i.y), 99999999999999);
+  // const minZ = bad.reduce((res, i) => (res < i.z ? res : i.z), 99999999999999);
+  // const maxX = bad.reduce((res, i) => (res > i.x ? res : i.x), -99999999999999);
+  // const maxY = bad.reduce((res, i) => (res > i.y ? res : i.y), -99999999999999);
+  // const maxZ = bad.reduce((res, i) => (res > i.z ? res : i.z), -99999999999999);
+
+  // console.log(minX, maxX);
+  // console.log(minY, maxY);
+  // console.log(minZ, maxZ);
+
+  // console.log("===");
+  // {
+  //   const minX = good.reduce(
+  //     (res, i) => (res < i.x ? res : i.x),
+  //     99999999999999
+  //   );
+  //   const minY = good.reduce(
+  //     (res, i) => (res < i.y ? res : i.y),
+  //     99999999999999
+  //   );
+  //   const minZ = good.reduce(
+  //     (res, i) => (res < i.z ? res : i.z),
+  //     99999999999999
+  //   );
+  //   const maxX = good.reduce(
+  //     (res, i) => (res > i.x ? res : i.x),
+  //     -99999999999999
+  //   );
+  //   const maxY = good.reduce(
+  //     (res, i) => (res > i.y ? res : i.y),
+  //     -99999999999999
+  //   );
+  //   const maxZ = good.reduce(
+  //     (res, i) => (res > i.z ? res : i.z),
+  //     -99999999999999
+  //   );
+
+  //   console.log(minX, maxX);
+  //   console.log(minY, maxY);
+  //   console.log(minZ, maxZ);
+  // }
+
+  bad.forEach(baddrone => {
+    const sects = good.filter(
+      gooddrone => dist(baddrone, gooddrone) <= baddrone.range + gooddrone.range
+    );
+    console.log(sects.length);
+  });
+
+  const g = good.map(g => ({
+    xa: g.x - g.r,
+    xb: g.x + g.r,
+    ya: g.y - g.r,
+    yb: g.y + g.r,
+    za: g.z - g.r,
+    zb: g.z + g.r
+  }));
+
+  // g.sort((a, b) => a.xa - b.xb);
+  // g.forEach(a => console.log(a));
+
+  let xa = g.reduce((res, g) => Math.max(res, g.xa), -999999999999);
+  let xb = g.reduce((res, g) => Math.min(res, g.xb), 99999999999);
+
+  let ya = g.reduce((res, g) => Math.max(res, g.ya), -999999999999);
+  let yb = g.reduce((res, g) => Math.min(res, g.yb), 99999999999);
+
+  let za = g.reduce((res, g) => Math.max(res, g.za), -999999999999);
+  let zb = g.reduce((res, g) => Math.min(res, g.zb), 99999999999);
+
+  // console.log(maxxa, minxb, minxb - xa);
+  // console.log(maxya, minyb, minyb - ya);
+  // console.log(maxza, minzb, zb - za);
+
+  // let ct = 0;
+  // for (let x = maxxa; x <= minxb; x++) {
+  //   console.log(".");
+  //   for (let y = maxya; y <= minyb; y++) {
+  //     for (let z = maxza; z <= minzb; z++) {
+  //       ct++;
+  //     }
+  //   }
+  // }
+  // console.log(ct);
+
+  // return;
 
   const range = {
-    x: Math.ceil(maxX - minX / 2),
-    y: Math.ceil(maxY - minY / 2),
-    z: Math.ceil(maxZ - minZ / 2)
+    x: Math.ceil((xb - xa) / 2),
+    y: Math.ceil((yb - ya) / 2),
+    z: Math.ceil((zb - za) / 2)
   };
   const center = {
-    x: range.x + minX,
-    y: range.y + minY,
-    z: range.z + minZ
+    x: range.x + xa,
+    y: range.y + ya,
+    z: range.z + za
   };
-  const pieces = 100;
+  const pieces = 50;
 
   let gmax = 0;
   let next;
@@ -94,9 +176,10 @@ function solve(input) {
     for (let x = center.x - range.x; x <= center.x + range.x; x += xd) {
       for (let y = center.y - range.y; y <= center.y + range.y; y += yd) {
         for (let z = center.z - range.z; z <= center.z + range.z; z += zd) {
-          const inrange = bad.filter(
+          const inrange = good.filter(
             drone => dist(drone, { x, y, z }) <= drone.r
           ).length;
+          // console.log(inrange);
           if (inrange > gmax) {
             next = { x, y, z };
             mindist = Math.abs(x + y + z);
@@ -107,6 +190,11 @@ function solve(input) {
             if (Math.abs(x + y + z) < mindist) {
               mindist = Math.abs(x + y + z);
               next = { x, y, z };
+              console.log(
+                "number",
+                input.filter(drone => dist(drone, { x, y, z }) <= drone.r)
+                  .length
+              );
             }
           }
         }
@@ -146,6 +234,7 @@ const file = require("fs")
   .map(parse);
 console.log(solve(file));
 
+// 111139928 low - 892
 // 111562242 low - 904
 // 111956876 low - 905
 // 112690922 low - 905
